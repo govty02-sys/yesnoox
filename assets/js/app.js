@@ -1,6 +1,5 @@
 window.WORKER_BASE = "https://reel-hub.govty02.workers.dev";
 let reelCount = 0;
-let currentPlaying = null;
 let currentPage = 1;
 let isLoading = false;
 let totalPages = 1;
@@ -53,7 +52,7 @@ async function loadVideos(page = 1) {
 
       // Auto-play when ready
       vidEl.addEventListener("canplay", () => {
-        if (vidEl.paused) vidEl.play().catch(() => {});
+        vidEl.play().catch(() => {});
       });
 
       // Toggle play/pause
@@ -82,13 +81,12 @@ async function loadVideos(page = 1) {
       vidEl.addEventListener("error", () => {
         console.warn("Video failed, removed:", vidEl.src);
         reel.remove();
-        handleScrollPause();
       });
 
       container.appendChild(reel);
     });
 
-    handleScrollPause();
+    handleScrollPlayMultiple();
   } catch (err) {
     console.error("Error loading videos:", err);
     if (page === 1) container.innerHTML = "<p>⚠️ Error loading videos.</p>";
@@ -100,42 +98,34 @@ async function loadVideos(page = 1) {
 // Check if element in viewport
 function isInViewport(el) {
   const rect = el.getBoundingClientRect();
-  return rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
+  return rect.bottom > 0 && rect.top < window.innerHeight;
 }
 
-// Scroll handling: play only visible video
-function handleScrollPause() {
+// Scroll handling: play all visible videos
+function handleScrollPlayMultiple() {
   const reels = document.querySelectorAll(".reel");
   reels.forEach(reel => {
     const video = reel.querySelector(".reel-video");
     const playBtn = reel.querySelector(".play-pause-btn");
-    const audioBtnImg = reel.querySelector(".audio-btn img");
+    const audioImg = reel.querySelector(".audio-btn img");
 
     if (isInViewport(video)) {
-      if (currentPlaying && currentPlaying !== video) {
-        currentPlaying.pause();
-        currentPlaying.closest(".reel")
-          .querySelector(".play-pause-btn").textContent = "▶";
-        currentPlaying.muted = true;
-        currentPlaying.closest(".reel")
-          .querySelector(".audio-btn img").src = "assets/icons/speaker-off.png";
-      }
       video.play().catch(() => {});
       if (!video.dataset.userUnmuted) video.muted = true;
-      currentPlaying = video;
       playBtn.textContent = video.paused ? "▶" : "⏸";
+      audioImg.src = video.muted ? "assets/icons/speaker-off.png" : "assets/icons/speaker-on.png";
     } else {
       video.pause();
       video.muted = true;
       playBtn.textContent = "▶";
-      audioBtnImg.src = "assets/icons/speaker-off.png";
+      audioImg.src = "assets/icons/speaker-off.png";
     }
   });
 }
 
 // Scroll + infinite load
 window.addEventListener("scroll", () => {
-  handleScrollPause();
+  handleScrollPlayMultiple();
 
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
     loadVideos(++currentPage);
