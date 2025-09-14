@@ -29,11 +29,11 @@ async function loadVideos(page = 1) {
       const reel = document.createElement("div");
       reel.className = "reel";
 
+      // Worker endpoint used for src
+      const videoSrc = `${window.WORKER_BASE}/video/${video.file_id}`;
+
       reel.innerHTML = `
-        <video class="reel-video"
-          src="${video.url}"
-          data-fallback-url="${video.url}"
-          autoplay loop muted playsinline preload="metadata"></video>
+        <video class="reel-video" src="${videoSrc}" autoplay loop muted playsinline preload="metadata"></video>
         <div class="footer-tags">#hot #desi #bhabhi</div>
         <div class="play-pause-btn">⏸</div>
         <div class="right-icons">
@@ -51,34 +51,40 @@ async function loadVideos(page = 1) {
       const audioBtn = reel.querySelector(".audio-btn");
       const audioImg = audioBtn.querySelector("img");
 
-      // Auto-play
       vidEl.addEventListener("canplay", () => vidEl.play().catch(() => {}));
 
       // Play/pause toggle
       const toggleVideo = () => {
-        if (vidEl.paused) { vidEl.play().catch(() => {}); playBtn.textContent = "⏸"; }
-        else { vidEl.pause(); playBtn.textContent = "▶"; }
+        if (vidEl.paused) {
+          vidEl.play().catch(() => {});
+          playBtn.textContent = "⏸";
+        } else {
+          vidEl.pause();
+          playBtn.textContent = "▶";
+        }
       };
       vidEl.addEventListener("click", toggleVideo);
       playBtn.addEventListener("click", toggleVideo);
 
-      // Mute/unmute
+      // Mute/unmute toggle
       audioBtn.addEventListener("click", () => {
         vidEl.muted = !vidEl.muted;
         vidEl.dataset.userUnmuted = !vidEl.muted ? "true" : "false";
-        audioImg.src = vidEl.muted ? "assets/icons/speaker-off.png" : "assets/icons/speaker-on.png";
+        audioImg.src = vidEl.muted
+          ? "assets/icons/speaker-off.png"
+          : "assets/icons/speaker-on.png";
       });
 
-      // Handle error & fallback
+      // Error fallback: Worker URL will always be used first
       vidEl.addEventListener("error", () => {
-        const fallbackUrl = vidEl.dataset.fallbackUrl;
-        if (fallbackUrl && vidEl.src !== fallbackUrl) {
-          console.warn("Video failed, using fallback:", vidEl.src);
-          vidEl.src = fallbackUrl;
+        console.warn("Video failed, trying fallback:", vidEl.src);
+        // If already fallback, remove
+        if (!vidEl.src.includes("/video/")) {
+          vidEl.src = `${window.WORKER_BASE}/video/${video.file_id}`;
           vidEl.load();
           vidEl.play().catch(() => {});
         } else {
-          console.warn("Video completely unavailable, removing:", vidEl.src);
+          console.error("Video unavailable, removing:", vidEl.src);
           reel.remove();
         }
       });
@@ -95,13 +101,12 @@ async function loadVideos(page = 1) {
   }
 }
 
-// Check if element is visible
+// Play all visible videos in viewport
 function isInViewport(el) {
   const rect = el.getBoundingClientRect();
   return rect.bottom > 0 && rect.top < window.innerHeight;
 }
 
-// Play all visible videos
 function handleScrollPlayMultiple() {
   document.querySelectorAll(".reel").forEach(reel => {
     const video = reel.querySelector(".reel-video");
@@ -125,9 +130,10 @@ function handleScrollPlayMultiple() {
 // Infinite scroll
 window.addEventListener("scroll", () => {
   handleScrollPlayMultiple();
+
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
     loadVideos(++currentPage);
   }
 }, { passive: true });
 
-document.addEventListener
+document.addEventListener("DOMContentLoaded", () => loadVideos());
