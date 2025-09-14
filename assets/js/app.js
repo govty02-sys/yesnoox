@@ -51,10 +51,12 @@ async function loadVideos(page = 1) {
       const audioBtn = reel.querySelector(".audio-btn");
       const audioImg = audioBtn.querySelector("img");
 
+      // Auto-play when ready
       vidEl.addEventListener("canplay", () => {
         if (vidEl.paused) vidEl.play().catch(() => {});
       });
 
+      // Toggle play/pause
       const toggleVideo = () => {
         if (vidEl.paused) {
           vidEl.play().catch(() => {});
@@ -67,12 +69,20 @@ async function loadVideos(page = 1) {
       vidEl.addEventListener("click", toggleVideo);
       playBtn.addEventListener("click", toggleVideo);
 
+      // Mute/unmute
       audioBtn.addEventListener("click", () => {
         vidEl.muted = !vidEl.muted;
         vidEl.dataset.userUnmuted = !vidEl.muted ? "true" : "false";
         audioImg.src = vidEl.muted
           ? "assets/icons/speaker-off.png"
           : "assets/icons/speaker-on.png";
+      });
+
+      // Remove broken video
+      vidEl.addEventListener("error", () => {
+        console.warn("Video failed, removed:", vidEl.src);
+        reel.remove();
+        handleScrollPause();
       });
 
       container.appendChild(reel);
@@ -87,11 +97,13 @@ async function loadVideos(page = 1) {
   }
 }
 
+// Check if element in viewport
 function isInViewport(el) {
   const rect = el.getBoundingClientRect();
   return rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
 }
 
+// Scroll handling: play only visible video
 function handleScrollPause() {
   const reels = document.querySelectorAll(".reel");
   reels.forEach(reel => {
@@ -121,10 +133,10 @@ function handleScrollPause() {
   });
 }
 
+// Scroll + infinite load
 window.addEventListener("scroll", () => {
   handleScrollPause();
 
-  // Auto load next page when near bottom
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
     loadVideos(++currentPage);
   }
