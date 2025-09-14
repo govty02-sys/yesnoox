@@ -32,6 +32,7 @@ async function loadVideos(page = 1) {
       reel.innerHTML = `
         <video class="reel-video"
           src="${video.url}"
+          data-fallback-url="${video.url}"
           autoplay loop muted playsinline preload="metadata"></video>
         <div class="footer-tags">#hot #desi #bhabhi</div>
         <div class="play-pause-btn">⏸</div>
@@ -50,20 +51,13 @@ async function loadVideos(page = 1) {
       const audioBtn = reel.querySelector(".audio-btn");
       const audioImg = audioBtn.querySelector("img");
 
-      // Auto-play when ready
-      vidEl.addEventListener("canplay", () => {
-        vidEl.play().catch(() => {});
-      });
+      // Auto-play
+      vidEl.addEventListener("canplay", () => vidEl.play().catch(() => {}));
 
-      // Toggle play/pause
+      // Play/pause toggle
       const toggleVideo = () => {
-        if (vidEl.paused) {
-          vidEl.play().catch(() => {});
-          playBtn.textContent = "⏸";
-        } else {
-          vidEl.pause();
-          playBtn.textContent = "▶";
-        }
+        if (vidEl.paused) { vidEl.play().catch(() => {}); playBtn.textContent = "⏸"; }
+        else { vidEl.pause(); playBtn.textContent = "▶"; }
       };
       vidEl.addEventListener("click", toggleVideo);
       playBtn.addEventListener("click", toggleVideo);
@@ -72,15 +66,21 @@ async function loadVideos(page = 1) {
       audioBtn.addEventListener("click", () => {
         vidEl.muted = !vidEl.muted;
         vidEl.dataset.userUnmuted = !vidEl.muted ? "true" : "false";
-        audioImg.src = vidEl.muted
-          ? "assets/icons/speaker-off.png"
-          : "assets/icons/speaker-on.png";
+        audioImg.src = vidEl.muted ? "assets/icons/speaker-off.png" : "assets/icons/speaker-on.png";
       });
 
-      // Remove broken video
+      // Handle error & fallback
       vidEl.addEventListener("error", () => {
-        console.warn("Video failed, removed:", vidEl.src);
-        reel.remove();
+        const fallbackUrl = vidEl.dataset.fallbackUrl;
+        if (fallbackUrl && vidEl.src !== fallbackUrl) {
+          console.warn("Video failed, using fallback:", vidEl.src);
+          vidEl.src = fallbackUrl;
+          vidEl.load();
+          vidEl.play().catch(() => {});
+        } else {
+          console.warn("Video completely unavailable, removing:", vidEl.src);
+          reel.remove();
+        }
       });
 
       container.appendChild(reel);
@@ -95,16 +95,15 @@ async function loadVideos(page = 1) {
   }
 }
 
-// Check if element in viewport
+// Check if element is visible
 function isInViewport(el) {
   const rect = el.getBoundingClientRect();
   return rect.bottom > 0 && rect.top < window.innerHeight;
 }
 
-// Scroll handling: play all visible videos
+// Play all visible videos
 function handleScrollPlayMultiple() {
-  const reels = document.querySelectorAll(".reel");
-  reels.forEach(reel => {
+  document.querySelectorAll(".reel").forEach(reel => {
     const video = reel.querySelector(".reel-video");
     const playBtn = reel.querySelector(".play-pause-btn");
     const audioImg = reel.querySelector(".audio-btn img");
@@ -123,15 +122,12 @@ function handleScrollPlayMultiple() {
   });
 }
 
-// Scroll + infinite load
+// Infinite scroll
 window.addEventListener("scroll", () => {
   handleScrollPlayMultiple();
-
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
     loadVideos(++currentPage);
   }
 }, { passive: true });
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadVideos();
-});
+document.addEventListener
