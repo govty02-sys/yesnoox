@@ -47,11 +47,20 @@ async function loadVideos(page = 1) {
       `;
 
       const vidEl = reel.querySelector(".reel-video");
-      const playBtn = reel.querySelector(".play-pause-btn");
-      const audioBtn = reel.querySelector(".audio-btn");
-      const audioImg = audioBtn.querySelector("img");
+const playBtn = reel.querySelector(".play-pause-btn");
+const audioBtn = reel.querySelector(".audio-btn");
+const audioImg = audioBtn.querySelector("img");
 
-      vidEl.addEventListener("canplay", () => vidEl.play().catch(() => {}));
+vidEl.addEventListener("canplay", () => vidEl.play().catch(() => {}));
+
+// Block touch/hold / right-click
+vidEl.addEventListener('contextmenu', e => e.preventDefault()); // Right click
+vidEl.addEventListener('mousedown', e => e.preventDefault());    // Desktop long click
+vidEl.addEventListener('touchstart', e => {
+  if (e.touches.length > 1) e.preventDefault(); // Multi-touch prevent
+  setTimeout(() => e.preventDefault(), 500);    // Long press prevent
+});
+
 
       // Play/pause toggle
       const toggleVideo = () => {

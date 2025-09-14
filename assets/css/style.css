@@ -144,3 +144,13 @@ header img.live-icon { height: 32px; object-fit: contain; animation: pulse 1s in
    ⏳ Loading
 ==================================*/
 .loading { padding: 20px; text-align: center; color: #ccc; }
+/* ===============================
+   🚫 Block Right-Click / Long Press
+==================================*/
+video {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
