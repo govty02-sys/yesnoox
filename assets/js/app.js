@@ -1,18 +1,27 @@
-window.WORKER_BASE = "https://reel-hub.govty02.workers.dev"; // बिना स्लैश
+window.WORKER_BASE = "https://reel-hub.govty02.workers.dev";
 let reelCount = 0;
 let currentPlaying = null;
+let currentPage = 1;
+let isLoading = false;
+let totalPages = 1;
 
-async function loadVideos() {
+async function loadVideos(page = 1) {
+  if (isLoading || page > totalPages) return;
+  isLoading = true;
+
   const container = document.getElementById("reelContainer");
-  container.innerHTML = "<div class='loading'>⏳ Loading reels...</div>";
+  if (page === 1) container.innerHTML = "<div class='loading'>⏳ Loading reels...</div>";
 
   try {
-    const res = await fetch(window.WORKER_BASE + "/videos");
+    const res = await fetch(`${window.WORKER_BASE}/videos?page=${page}`);
     const data = await res.json();
-    container.innerHTML = "";
+    console.log("Videos received from API:", data.videos);
+
+    totalPages = data.pagination?.totalPages || 1;
+    if (page === 1) container.innerHTML = "";
 
     if (!data.videos || data.videos.length === 0) {
-      container.innerHTML = "<p>कोई वीडियो नहीं मिला।</p>";
+      if (page === 1) container.innerHTML = "<p>कोई वीडियो नहीं मिला।</p>";
       return;
     }
 
@@ -23,7 +32,7 @@ async function loadVideos() {
 
       reel.innerHTML = `
         <video class="reel-video"
-          src="${window.WORKER_BASE}/video/${video.file_id}"
+          src="${video.url}"
           autoplay loop muted playsinline preload="metadata"></video>
         <div class="footer-tags">#hot #desi #bhabhi</div>
         <div class="play-pause-btn">⏸</div>
@@ -69,50 +78,58 @@ async function loadVideos() {
       container.appendChild(reel);
     });
 
-    function isInViewport(el) {
-      const rect = el.getBoundingClientRect();
-      return rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
-    }
-
-    function handleScrollPause() {
-      const reels = document.querySelectorAll(".reel");
-      reels.forEach(reel => {
-        const video = reel.querySelector(".reel-video");
-        const playBtn = reel.querySelector(".play-pause-btn");
-        const audioBtnImg = reel.querySelector(".audio-btn img");
-
-        if (isInViewport(video)) {
-          if (currentPlaying && currentPlaying !== video) {
-            currentPlaying.pause();
-            currentPlaying.closest(".reel")
-              .querySelector(".play-pause-btn").textContent = "▶";
-            currentPlaying.muted = true;
-            currentPlaying.closest(".reel")
-              .querySelector(".audio-btn img").src = "assets/icons/speaker-off.png";
-          }
-          video.play().catch(() => {});
-          if (!video.dataset.userUnmuted) video.muted = true;
-          currentPlaying = video;
-          playBtn.textContent = video.paused ? "▶" : "⏸";
-        } else {
-          video.pause();
-          video.muted = true;
-          playBtn.textContent = "▶";
-          audioBtnImg.src = "assets/icons/speaker-off.png";
-        }
-      });
-    }
-
-    window.addEventListener("scroll", handleScrollPause, { passive: true });
-    setInterval(handleScrollPause, 800);
     handleScrollPause();
   } catch (err) {
     console.error("Error loading videos:", err);
-    container.innerHTML = "<p>⚠️ Error loading videos.</p>";
+    if (page === 1) container.innerHTML = "<p>⚠️ Error loading videos.</p>";
+  } finally {
+    isLoading = false;
   }
 }
+
+function isInViewport(el) {
+  const rect = el.getBoundingClientRect();
+  return rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
+}
+
+function handleScrollPause() {
+  const reels = document.querySelectorAll(".reel");
+  reels.forEach(reel => {
+    const video = reel.querySelector(".reel-video");
+    const playBtn = reel.querySelector(".play-pause-btn");
+    const audioBtnImg = reel.querySelector(".audio-btn img");
+
+    if (isInViewport(video)) {
+      if (currentPlaying && currentPlaying !== video) {
+        currentPlaying.pause();
+        currentPlaying.closest(".reel")
+          .querySelector(".play-pause-btn").textContent = "▶";
+        currentPlaying.muted = true;
+        currentPlaying.closest(".reel")
+          .querySelector(".audio-btn img").src = "assets/icons/speaker-off.png";
+      }
+      video.play().catch(() => {});
+      if (!video.dataset.userUnmuted) video.muted = true;
+      currentPlaying = video;
+      playBtn.textContent = video.paused ? "▶" : "⏸";
+    } else {
+      video.pause();
+      video.muted = true;
+      playBtn.textContent = "▶";
+      audioBtnImg.src = "assets/icons/speaker-off.png";
+    }
+  });
+}
+
+window.addEventListener("scroll", () => {
+  handleScrollPause();
+
+  // Auto load next page when near bottom
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+    loadVideos(++currentPage);
+  }
+}, { passive: true });
 
 document.addEventListener("DOMContentLoaded", () => {
   loadVideos();
 });
-console.log("Videos received from API:", data.videos);
