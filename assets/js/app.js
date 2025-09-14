@@ -115,3 +115,4 @@ async function loadVideos() {
 document.addEventListener("DOMContentLoaded", () => {
   loadVideos();
 });
+console.log("Videos received from API:", data.videos);
