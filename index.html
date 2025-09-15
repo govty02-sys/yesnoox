@@ -3,29 +3,31 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
   <title>desisukh</title>
   <meta name="description" content="Indian hot reels - Watch thousands of Indian, Tamil hot reels, desi girls reels and bhabhi hot videos." />
   <meta name="robots" content="index, follow" />
+
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon.png">
+q
   <link rel="stylesheet" href="assets/css/style.css" />
 
-  <!-- jQuery -->
+  <!-- jQuery CDN -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0ZVG93CRT8"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-0ZVG93CRT8');
-  </script>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0ZVG93CRT8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  <!-- Push Notification SDK -->
-  <script async src="https://push.aplu.io/push-notify.js"></script>
+  gtag('config', 'G-0ZVG93CRT8');
+</script>
+<script src='https://push.aplu.io/push-notify.js'></script>
+<link rel="manifest" href="assets/manifest.json">
+<meta name="theme-color" content="#ff2d55"/>
 
-  <link rel="manifest" href="assets/manifest.json">
-  <meta name="theme-color" content="#ff2d55"/>
 </head>
 <body>
 
@@ -35,14 +37,14 @@
     <img src="assets/icons/animated-icon.png" class="live-icon" alt="Live">
   </header>
 
-  <!-- Main -->
+  <!-- Main Scroll Container -->
   <main>
     <div id="reelContainer" class="scroll-container">
       <div class="loading">⏳ Loading reels...</div>
     </div>
   </main>
 
-  <!-- Bottom Nav -->
+  <!-- Bottom Navigation -->
   <nav class="bottom-nav">
     <button><img src="assets/icons/home.png" alt="Home"><span>Home</span></button>
     <button><img src="assets/icons/search.png" alt="Search"><span>Search</span></button>
@@ -50,46 +52,33 @@
     <button><img src="assets/icons/login.png" alt="Login"><span>Login</span></button>
   </nav>
 
-  <!-- Fixed Banner Ad -->
-  <div id="fixedban" style="width:100%;text-align:center;position:fixed;top:0;z-index:999;">
-    <div id="bl_banner" style="max-width:728px;margin:auto;background:#fff;padding:5px;border-radius:8px;box-shadow:0 0 8px rgba(0,0,0,0.2);">
+  <!-- Fixed Footer Ad -->
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $("img#closed").click(function() {
+        $("#bl_banner").hide(90);
+      });
+    });
+  </script>
+
+  <div id="fixedban" style="width:100%;margin:auto;text-align:center;position:fixed;top:0;z-index:999;">
+    <div id="bl_banner" style="text-align:center;max-width:728px;margin:auto;background:#fff;padding:5px;border-radius:8px;box-shadow:0 0 8px rgba(0,0,0,0.2);">
       <img id="closed" src="assets/icons/close.png" alt="Close" style="position:absolute;top:5px;right:5px;width:18px;height:18px;cursor:pointer;">
-      <script>
+      <script type="text/javascript">
         atOptions = {
-          key: 'beb4357a9f3e3cb4ad23051f64297ec4',
-          format: 'iframe',
-          height: 50,
-          width: 320,
-          params: {}
+          'key' : 'beb4357a9f3e3cb4ad23051f64297ec4',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
         };
       </script>
-      <script src="//www.highperformanceformat.com/beb4357a9f3e3cb4ad23051f64297ec4/invoke.js"></script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/beb4357a9f3e3cb4ad23051f64297ec4/invoke.js"></script>
     </div>
   </div>
 
-  <!-- ✅ Firebase Initialization (v9 Modular) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getMessaging } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging.js";
+  <!-- ✅ Main JS (only one file now) -->
+  <script src="assets/js/app.js"></script>
 
-    try {
-      const firebaseConfig = {
-        apiKey: "AIzaSyCHxVFhXm93Sq4ONAIgDnIFX0XzUccQbBk",
-        authDomain: "aplu-a24.firebaseapp.com",
-        projectId: "aplu-a24",
-        storageBucket: "aplu-a24.appspot.com",
-        messagingSenderId: "283909295354",
-        appId: "1:283909295354:web:8138e14d4880270663cd43"
-      };
-      const app = initializeApp(firebaseConfig);
-      getMessaging(app);
-      console.log("✅ Firebase Initialized");
-    } catch (err) {
-      console.warn("⚠ Firebase init failed", err);
-    }
-  </script>
-
-  <!-- Main App -->
-  <script src="assets/js/app.js" defer></script>
 </body>
 </html>
