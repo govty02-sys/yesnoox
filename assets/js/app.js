@@ -1,39 +1,29 @@
-window.WORKER_BASE = "https://reel-hub.govty02.workers.dev";
+window.WORKER_BASE = "https://reel-hub.govty02.workers.dev"; // बिना स्लैश
 let reelCount = 0;
-let currentPage = 1;
-let isLoading = false;
-let totalPages = 1;
+let currentPlaying = null; // currently visible video
 
-async function loadVideos(page = 1) {
-  if (isLoading || page > totalPages) return;
-  isLoading = true;
-
+async function loadVideos() {
   const container = document.getElementById("reelContainer");
-  if (page === 1) container.innerHTML = "<div class='loading'>⏳ Loading reels...</div>";
+  container.innerHTML = "<div class='loading'>⏳ Loading reels...</div>";
 
   try {
-    const res = await fetch(`${window.WORKER_BASE}/videos?page=${page}`);
+    const res = await fetch(window.WORKER_BASE + "/videos");
     const data = await res.json();
-    console.log("Videos received from API:", data.videos);
-
-    totalPages = data.pagination?.totalPages || 1;
-    if (page === 1) container.innerHTML = "";
+    container.innerHTML = "";
 
     if (!data.videos || data.videos.length === 0) {
-      if (page === 1) container.innerHTML = "<p>कोई वीडियो नहीं मिला।</p>";
+      container.innerHTML = "<p>कोई वीडियो नहीं मिला।</p>";
       return;
     }
 
+    // सभी videos append करो
     data.videos.forEach(video => {
       reelCount++;
       const reel = document.createElement("div");
       reel.className = "reel";
 
-      // Worker endpoint used for src
-      const videoSrc = `${window.WORKER_BASE}/video/${video.file_id}`;
-
       reel.innerHTML = `
-        <video class="reel-video" src="${videoSrc}" autoplay loop muted playsinline preload="metadata"></video>
+        <video class="reel-video" src="${video.url}" autoplay loop muted playsinline preload="auto"></video>
         <div class="footer-tags">#hot #desi #bhabhi</div>
         <div class="play-pause-btn">⏸</div>
         <div class="right-icons">
@@ -47,22 +37,18 @@ async function loadVideos(page = 1) {
       `;
 
       const vidEl = reel.querySelector(".reel-video");
-const playBtn = reel.querySelector(".play-pause-btn");
-const audioBtn = reel.querySelector(".audio-btn");
-const audioImg = audioBtn.querySelector("img");
+      const playBtn = reel.querySelector(".play-pause-btn");
+      const audioBtn = reel.querySelector(".audio-btn");
+      const audioImg = audioBtn.querySelector("img");
 
-vidEl.addEventListener("canplay", () => vidEl.play().catch(() => {}));
+      // Autoplay ensure
+      vidEl.addEventListener("canplay", () => {
+        if (vidEl.paused) {
+          vidEl.play().catch(() => {});
+        }
+      });
 
-// Block touch/hold / right-click
-vidEl.addEventListener('contextmenu', e => e.preventDefault()); // Right click
-vidEl.addEventListener('mousedown', e => e.preventDefault());    // Desktop long click
-vidEl.addEventListener('touchstart', e => {
-  if (e.touches.length > 1) e.preventDefault(); // Multi-touch prevent
-  setTimeout(() => e.preventDefault(), 500);    // Long press prevent
-});
-
-
-      // Play/pause toggle
+      // Play / Pause
       const toggleVideo = () => {
         if (vidEl.paused) {
           vidEl.play().catch(() => {});
@@ -75,74 +61,148 @@ vidEl.addEventListener('touchstart', e => {
       vidEl.addEventListener("click", toggleVideo);
       playBtn.addEventListener("click", toggleVideo);
 
-      // Mute/unmute toggle
+      // Audio toggle
       audioBtn.addEventListener("click", () => {
         vidEl.muted = !vidEl.muted;
         vidEl.dataset.userUnmuted = !vidEl.muted ? "true" : "false";
-        audioImg.src = vidEl.muted
-          ? "assets/icons/speaker-off.png"
-          : "assets/icons/speaker-on.png";
+        audioImg.src = vidEl.muted ? "assets/icons/speaker-off.png" : "assets/icons/speaker-on.png";
       });
 
-      // Error fallback: Worker URL will always be used first
-      vidEl.addEventListener("error", () => {
-        console.warn("Video failed, trying fallback:", vidEl.src);
-        // If already fallback, remove
-        if (!vidEl.src.includes("/video/")) {
-          vidEl.src = `${window.WORKER_BASE}/video/${video.file_id}`;
-          vidEl.load();
-          vidEl.play().catch(() => {});
-        } else {
-          console.error("Video unavailable, removing:", vidEl.src);
-          reel.remove();
-        }
-      });
+      // Like / Comment / Share (demo only)
+      reel.querySelector(".like-btn").addEventListener("click", () => alert("Liked!"));
+      reel.querySelector(".comment-btn").addEventListener("click", () => alert("Open comments!"));
+      reel.querySelector(".share-btn").addEventListener("click", () => alert("Share link copied!"));
 
       container.appendChild(reel);
     });
 
-    handleScrollPlayMultiple();
+    // -----------------------------
+    // Scroll / Auto-Pause Handler
+    // -----------------------------
+    function isInViewport(el) {
+      const rect = el.getBoundingClientRect();
+      return rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
+    }
+
+    function handleScrollPause() {
+      const reels = document.querySelectorAll(".reel");
+      reels.forEach(reel => {
+        const video = reel.querySelector(".reel-video");
+        const playBtn = reel.querySelector(".play-pause-btn");
+        const audioBtnImg = reel.querySelector(".audio-btn img");
+
+        if (isInViewport(video)) {
+          if (currentPlaying && currentPlaying !== video) {
+            currentPlaying.pause();
+            const prevPlayBtn = currentPlaying.closest(".reel").querySelector(".play-pause-btn");
+            prevPlayBtn.textContent = "▶";
+            currentPlaying.muted = true;
+            currentPlaying.closest(".reel").querySelector(".audio-btn img").src = "assets/icons/speaker-off.png";
+          }
+          video.play().catch(() => {});
+          if (!video.dataset.userUnmuted) video.muted = true;
+          currentPlaying = video;
+          playBtn.textContent = video.paused ? "▶" : "⏸";
+        } else {
+          video.pause();
+          video.muted = true;
+          playBtn.textContent = "▶";
+          audioBtnImg.src = "assets/icons/speaker-off.png";
+        }
+      });
+    }
+
+    window.addEventListener("scroll", handleScrollPause, { passive: true });
+    setInterval(handleScrollPause, 800); // safety check
+    handleScrollPause(); // initial run
   } catch (err) {
     console.error("Error loading videos:", err);
-    if (page === 1) container.innerHTML = "<p>⚠️ Error loading videos.</p>";
-  } finally {
-    isLoading = false;
+    container.innerHTML = "<p>⚠️ Error loading videos.</p>";
   }
 }
 
-// Play all visible videos in viewport
-function isInViewport(el) {
-  const rect = el.getBoundingClientRect();
-  return rect.bottom > 0 && rect.top < window.innerHeight;
-}
+// Bottom nav actions
+document.addEventListener("DOMContentLoaded", () => {
+  loadVideos();
 
-function handleScrollPlayMultiple() {
-  document.querySelectorAll(".reel").forEach(reel => {
-    const video = reel.querySelector(".reel-video");
-    const playBtn = reel.querySelector(".play-pause-btn");
-    const audioImg = reel.querySelector(".audio-btn img");
+  const btns = document.querySelectorAll(".bottom-nav button");
+  if (btns.length === 4) {
+    btns[0].onclick = () => (window.location.href = "/");
+    btns[1].onclick = () => alert("Search feature coming soon.");
+    btns[2].onclick = () => alert("Bookmark feature coming soon.");
+    btns[3].onclick = () => alert("Login feature coming soon.");
+  }
+});
+//app install
+let deferredPrompt;
 
-    if (isInViewport(video)) {
-      video.play().catch(() => {});
-      if (!video.dataset.userUnmuted) video.muted = true;
-      playBtn.textContent = video.paused ? "▶" : "⏸";
-      audioImg.src = video.muted ? "assets/icons/speaker-off.png" : "assets/icons/speaker-on.png";
-    } else {
-      video.pause();
-      video.muted = true;
-      playBtn.textContent = "▶";
-      audioImg.src = "assets/icons/speaker-off.png";
-    }
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  // ✅ Custom Popup Create
+  const popup = document.createElement("div");
+  popup.id = "installPopup";
+  popup.innerHTML = `
+    <div style="
+      position:fixed;
+      bottom:65px;
+      left:0;
+      right:0;
+      background:#000;
+      color:#fff;
+      padding:12px;
+      text-align:center;
+      font-family:Arial, sans-serif;
+      font-size:14px;
+      z-index:9999;
+      box-shadow:0 -2px 8px rgba(0,0,0,0.4);
+    ">
+      Install DesiSukh App?
+      <button id="installBtn" style="
+        margin-left:10px;
+        padding:6px 12px;
+        background:#ff2d55;
+        color:#fff;
+        border:none;
+        border-radius:4px;
+        cursor:pointer;
+      ">Install</button>
+      <button id="closeBtn" style="
+        margin-left:8px;
+        padding:6px 10px;
+        background:#444;
+        color:#fff;
+        border:none;
+        border-radius:4px;
+        cursor:pointer;
+      ">Close</button>
+    </div>
+  `;
+  document.body.appendChild(popup);
+
+  // ✅ Install Button Click
+  document.getElementById("installBtn").addEventListener("click", () => {
+    popup.remove();
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choice) => {
+      if (choice.outcome === "accepted") {
+        console.log("✅ User installed DesiSukh App");
+      } else {
+        console.log("❌ User dismissed install");
+      }
+      deferredPrompt = null;
+    });
   });
+
+  // ❌ Close Button
+  document.getElementById("closeBtn").addEventListener("click", () => {
+    popup.remove();
+  });
+});
+//service worker
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js")
+    .then(() => console.log("✅ Service Worker registered"))
+    .catch(err => console.error("❌ SW registration failed:", err));
 }
-
-// Infinite scroll
-window.addEventListener("scroll", () => {
-  handleScrollPlayMultiple();
-
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
-    loadVideos(++currentPage);
-  }
-}, { passive: true });
-
-document.addEventListener("DOMContentLoaded", () => loadVideos());
