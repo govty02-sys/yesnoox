@@ -1,15 +1,9 @@
-/* ===============================
-   🎨 Root Variables
-==================================*/
 :root {
   --bg: transparent;
   --text: #fff;
   --accent: #ff2d55;
 }
 
-/* ===============================
-   🛠️ Global Reset
-==================================*/
 * {
   box-sizing: border-box;
   margin: 0;
@@ -23,9 +17,6 @@ html, body, main {
   font-family: Arial, sans-serif;
 }
 
-/* ===============================
-   📜 Scroll Container
-==================================*/
 .scroll-container {
   position: relative;
   overflow-y: auto;
@@ -34,9 +25,6 @@ html, body, main {
   padding-bottom: 56px;
 }
 
-/* ===============================
-   🎥 Reel
-==================================*/
 .reel {
   scroll-snap-align: start;
   position: relative;
@@ -58,9 +46,6 @@ video::-webkit-media-controls-enclosure {
   display: none;
 }
 
-/* ===============================
-   ▶️ Play/Pause
-==================================*/
 .play-pause-btn {
   position: absolute;
   top: 50%; left: 50%;
@@ -74,9 +59,6 @@ video::-webkit-media-controls-enclosure {
   cursor: pointer; z-index: 10;
 }
 
-/* ===============================
-   🏷️ Footer Tags
-==================================*/
 .footer-tags {
   position: absolute; bottom: 80px; left: 12px;
   font-size: 14px; color: #fff;
@@ -84,9 +66,6 @@ video::-webkit-media-controls-enclosure {
   padding: 5px 10px; border-radius: 6px;
 }
 
-/* ===============================
-   📌 Right Side Icons + Audio
-==================================*/
 .right-icons {
   position: absolute; right: 12px; top: 50%;
   transform: translateY(-50%);
@@ -113,9 +92,6 @@ video::-webkit-media-controls-enclosure {
 }
 .audio-btn img { width: 28px; height: 28px; }
 
-/* ===============================
-   🖥️ Header
-==================================*/
 header {
   position: fixed; top: 0; left: 0; right: 0;
   height: 56px; background: transparent;
@@ -124,9 +100,6 @@ header {
 }
 header img.logo { height: 36px; object-fit: contain; }
 
-/* ===============================
-   📱 Bottom Navigation
-==================================*/
 .bottom-nav {
   position: fixed; left: 0; right: 0; bottom: 0; height: 56px;
   background: #000; display: flex; justify-content: space-around; align-items: center; z-index: 45;
@@ -138,14 +111,8 @@ header img.logo { height: 36px; object-fit: contain; }
 }
 .bottom-nav button img { width: 24px; height: 24px; object-fit: contain; }
 
-/* ===============================
-   ⏳ Loading
-==================================*/
 .loading { padding: 20px; text-align: center; color: #ccc; }
 
-/* ===============================
-   🚫 Block Right-Click / Long Press
-==================================*/
 video {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -154,44 +121,40 @@ video {
   user-select: none;
 }
 
-/* ===============================
-   ✅ Fixed Small Video Ad
-==================================*/
-.fixed-video-ad {
+/* =============================== Fixed Small Video Ad =============================== */
+#fixedban {
+  width: 100%;
+  text-align: center;
   position: fixed;
-  bottom: 56px; /* footer से ठीक ऊपर */
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 56px; /* footer के ऊपर */
+  z-index: 999;
+}
+
+#fixedban #bl_banner {
   width: 300px;
   height: 20px;
-  z-index: 50;
-  background: #000;
-  border-radius: 4px;
+  margin: auto;
   overflow: hidden;
+  border-radius: 4px;
+  background: #000;
 }
-.fixed-video-ad video {
+
+#fixedban video {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* पहले cover था */
-  background: #000;    /* gap होने पर black दिखे */
+  object-fit: contain; /* mobile पर zoom नहीं होगा */
+  background: #000;
   display: block;
 }
 
-/* ===============================
-   ✅ Instagram-style Live Circle
-==================================*/
+/* =============================== Instagram-style Live Circle =============================== */
 .live-circle {
   position: relative;
   width: 60px;
   height: 60px;
   border-radius: 50%;
   padding: 3px;
-  background: conic-gradient(
-    from 0deg,
-    #ff2d55,
-    #ff5e62,
-    #ff2d55
-  );
+  background: conic-gradient(from 0deg, #ff2d55, #ff5e62, #ff2d55);
   animation: rotateCircle 3s linear infinite;
 }
 .live-circle img {
