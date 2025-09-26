@@ -172,7 +172,8 @@ video {
 .fixed-video-ad video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* पहले cover था */
+  background: #000;    /* gap होने पर black दिखे */
   display: block;
 }
 
