@@ -142,7 +142,7 @@ video {
 #fixedban video {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* mobile पर zoom नहीं होगा */
+  object-fit: cover; /* mobile पर zoom नहीं होगा */
   background: #000;
   display: block;
 }
