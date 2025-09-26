@@ -9,32 +9,29 @@
   <meta name="robots" content="index, follow" />
 
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon.png">
-q
   <link rel="stylesheet" href="assets/css/style.css" />
 
   <!-- jQuery CDN -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
   <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-0ZVG93CRT8"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-0ZVG93CRT8');
-</script>
-<script src='https://push.aplu.io/push-notify.js'></script>
-<link rel="manifest" href="assets/manifest.json">
-<meta name="theme-color" content="#ff2d55"/>
-
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0ZVG93CRT8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-0ZVG93CRT8');
+  </script>
+  <script src='https://push.aplu.io/push-notify.js'></script>
+  <link rel="manifest" href="assets/manifest.json">
+  <meta name="theme-color" content="#ff2d55"/>
 </head>
 <body>
 
   <!-- Header -->
   <header>
     <img src="assets/img/logo.png" class="logo" alt="Logo">
-    <img src="assets/icons/animated-icon.png" class="live-icon" alt="Live">
+    <!-- old live icon removed -->
   </header>
 
   <!-- Main Scroll Container -->
@@ -44,6 +41,14 @@ q
     </div>
   </main>
 
+  <!-- ✅ Fixed Small Video Ad -->
+<div class="small-video-ad">
+  <a href="https://www.revenuecpmgate.com/vebhp33t?key=8f42db7be15b08f1a6e0a1587f4c7bcb" target="_blank">
+    <video src="assets/video/ad.mp4" autoplay loop muted playsinline></video>
+  </a>
+</div>
+
+
   <!-- Bottom Navigation -->
   <nav class="bottom-nav">
     <button><img src="assets/icons/home.png" alt="Home"><span>Home</span></button>
@@ -52,32 +57,7 @@ q
     <button><img src="assets/icons/login.png" alt="Login"><span>Login</span></button>
   </nav>
 
-  <!-- Fixed Footer Ad -->
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $("img#closed").click(function() {
-        $("#bl_banner").hide(90);
-      });
-    });
-  </script>
-
-  <div id="fixedban" style="width:100%;margin:auto;text-align:center;position:fixed;top:0;z-index:999;">
-    <div id="bl_banner" style="text-align:center;max-width:728px;margin:auto;background:#fff;padding:5px;border-radius:8px;box-shadow:0 0 8px rgba(0,0,0,0.2);">
-      <img id="closed" src="assets/icons/close.png" alt="Close" style="position:absolute;top:5px;right:5px;width:18px;height:18px;cursor:pointer;">
-      <script type="text/javascript">
-        atOptions = {
-          'key' : 'beb4357a9f3e3cb4ad23051f64297ec4',
-          'format' : 'iframe',
-          'height' : 50,
-          'width' : 320,
-          'params' : {}
-        };
-      </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/beb4357a9f3e3cb4ad23051f64297ec4/invoke.js"></script>
-    </div>
-  </div>
-
-  <!-- ✅ Main JS (only one file now) -->
+  <!-- ✅ Main JS -->
   <script src="assets/js/app.js"></script>
 
 </body>

@@ -123,8 +123,6 @@ header {
   padding: 0 12px; z-index: 100;
 }
 header img.logo { height: 36px; object-fit: contain; }
-header img.live-icon { height: 32px; object-fit: contain; animation: pulse 1s infinite; }
-@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
 /* ===============================
    📱 Bottom Navigation
@@ -144,13 +142,65 @@ header img.live-icon { height: 32px; object-fit: contain; animation: pulse 1s in
    ⏳ Loading
 ==================================*/
 .loading { padding: 20px; text-align: center; color: #ccc; }
+
 /* ===============================
    🚫 Block Right-Click / Long Press
 ==================================*/
 video {
-  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-touch-callout: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+/* ===============================
+   ✅ Fixed Small Video Ad
+==================================*/
+.fixed-video-ad {
+  position: fixed;
+  bottom: 56px; /* footer से ठीक ऊपर */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 20px;
+  z-index: 50;
+  background: #000;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.fixed-video-ad video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ===============================
+   ✅ Instagram-style Live Circle
+==================================*/
+.live-circle {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  padding: 3px;
+  background: conic-gradient(
+    from 0deg,
+    #ff2d55,
+    #ff5e62,
+    #ff2d55
+  );
+  animation: rotateCircle 3s linear infinite;
+}
+.live-circle img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid #000;
+  object-fit: cover;
+}
+@keyframes rotateCircle {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
